@@ -1,5 +1,6 @@
 // ExistingItem.cpp
 #include "ExistingItem.h"
+#include "File.h"
 #include <iostream>
 #include <string>
 #include <map>
@@ -47,8 +48,6 @@ void ExistingItem::displayCommands() {
     cout << "7. del [name]" << endl;
     cout << "8. exit" << endl;
     cout << " " << endl;
-
-
 }
 
 
@@ -146,6 +145,17 @@ void ExistingItem::navigate()
             case 3:
                 // Handle sortname
                 break;
+            case 6: 
+            {
+                string fileName;
+                cout << "File Name: ";
+                getline(cin, fileName); //read filename here
+
+                string fullPath = name + "\\" + fileName; //initialise the current path - this ensures the program uses the correct path for the file creation
+                File newFile(fullPath, 0.0); //create new object of type File
+                newFile.createFile(fileName); //call 'createFile' upon the newly created object
+                break;
+            }
             case 8:
                 exit(0);
                 break;

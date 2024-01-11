@@ -20,8 +20,8 @@ File::~File()
 
 void File::createFile(string fileName) 
 {
-	string filePath = name + "\\" + fileName;
-	ofstream newFile(filePath);
+	//string filePath = name + "\\" + fileName;
+	ofstream newFile(name);
 
 	if (newFile.is_open()) {
 		cout << "File created successfully: " << fileName << endl;
