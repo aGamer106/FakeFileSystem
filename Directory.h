@@ -8,9 +8,6 @@ using namespace std;
 class Directory : ExistingItem
 {
 
-private:
-	string path;
-	string name;
 	double size;
 	string timeOfEdit;
 
