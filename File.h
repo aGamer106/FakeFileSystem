@@ -11,7 +11,7 @@ public:
 	File(string name, double size);
 	~File();
 	virtual void createFile(string fileName);
-
+	string getName();
 
 };
 

@@ -1,10 +1,11 @@
-// ExistingItem.cpp
 #include "ExistingItem.h"
 #include "File.h"
+#include "Directory.h"
 #include <iostream>
 #include <string>
 #include <map>
 #include <filesystem>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -33,8 +34,21 @@ void ExistingItem::searchDirectory(string path)
             std::cout << item.path().string() << endl;
         }
     }
-
 }
+
+
+//method implementation:
+//the only difference between this and the one just above,
+//is that this method DOES NOT go any deeper into the sub-folders of the current folder
+//printing out only the contents of the current folder, recursively
+void ExistingItem::useDirCommand(const string& path)
+{
+    for (const filesystem::directory_entry& item : filesystem::directory_iterator(path))
+    {
+        cout << item.path().filename().string() << endl;  // Only display the filename
+    }
+}
+
 
 
 void ExistingItem::displayCommands() {
@@ -42,10 +56,10 @@ void ExistingItem::displayCommands() {
     cout << "1. dir" << endl;
     cout << "2. sortsize" << endl;
     cout << "3. sortname" << endl;
-    cout << "4. cd [name]" << endl;
-    cout << "5. mkdir [name]" << endl;
-    cout << "6. mkfile [name]" << endl;
-    cout << "7. del [name]" << endl;
+    cout << "4. cd + ENTER + [name]" << endl;
+    cout << "5. mkdir + ENTER + [name]" << endl;
+    cout << "6. mkfile + ENTER + [name]" << endl;
+    cout << "7. del + ENTER + [name]" << endl;
     cout << "8. exit" << endl;
     cout << " " << endl;
 }
@@ -66,6 +80,10 @@ const tm ExistingItem::convertTime(const filesystem::file_time_type& timestamp)
 
 
 void ExistingItem::listDirectories(string path) {
+
+    cout << "(C) Razvan-Daniel Besleaga. All rights reserved." << '\n';
+    cout << "================================================" << '\n';
+    cout << "Initialisation complete..." << '\n';
     cout << "Here is a list of files in " << path << "\n\n";
 
     // use an implicit iterator to enumerate the path
@@ -119,10 +137,12 @@ void ExistingItem::navigate()
         {"commands", 0}
     };
 
+    Directory currentDirectory(name, 0.0);
+
     // SKELETON LOGIC OF THE NAVIGATION
     while (true)
     {
-        cout << name << ":>";
+        cout << currentDirectory.getName() << ":>";
         cout << " ";
         getline(cin, input);
 
@@ -134,10 +154,10 @@ void ExistingItem::navigate()
             switch (command)
             {
             case 0:
-                displayCommands();
+                displayCommands(); // i implemented this functionality solely to avoid confusion between the commands themselves in the command prompt
                 break;
             case 1:
-                searchDirectory(name);
+                useDirCommand(currentDirectory.getName());
                 break;
             case 2:
                 // Handle sortsize
@@ -145,15 +165,32 @@ void ExistingItem::navigate()
             case 3:
                 // Handle sortname
                 break;
-            case 6: 
+            case 4:
+            {
+                string directoryName;
+                cout << "Directory name: ";
+                getline(cin, directoryName);
+
+                if (currentDirectory.browseThroughDirectories("cd " + directoryName, "C:\\Users\\User\\Desktop\\DummyData")) {
+                    cout << "Succesfully changed directory to: " << currentDirectory.getName() << endl;
+                }
+            }
+                break;
+                
+            case 6:
             {
                 string fileName;
                 cout << "File Name: ";
-                getline(cin, fileName); //read filename here
-
-                string fullPath = name + "\\" + fileName; //initialise the current path - this ensures the program uses the correct path for the file creation
-                File newFile(fullPath, 0.0); //create new object of type File
-                newFile.createFile(fileName); //call 'createFile' upon the newly created object
+                getline(cin, fileName); // Read filename here
+                bool exist = filesystem::exists(fileName);
+                if (exist) {
+                    cout << "File already exists, try a new name." << endl;
+                }
+                else {
+                    string fullPath = currentDirectory.getName() + "\\" + fileName; // Append current directory's path
+                    File newFile(fullPath, 0.0); // Create a new object of type File
+                    newFile.createFile(fileName); // Call 'createFile' upon the newly created object
+                }
                 break;
             }
             case 8:

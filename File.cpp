@@ -18,6 +18,12 @@ File::~File()
 
 }
 
+
+string File::getName() {
+	return name;
+}
+
+
 void File::createFile(string fileName) 
 {
 	//string filePath = name + "\\" + fileName;
@@ -37,14 +43,13 @@ void File::createFile(string fileName)
 		strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &creationTm);
 
 		timestamp = buffer; // Set the timestamp within the File class
-
-
 	}
 	else {
 		cout << "Failed to create file: " << fileName << endl;
 	}
-
 }
+
+
 
 
 
