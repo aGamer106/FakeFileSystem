@@ -9,6 +9,8 @@ class Directory : ExistingItem
 {
 public:
 	Directory(string name, double size);
-	virtual void browseThroughDirectories(); //method that uses the "cd" command
+	~Directory();
+	string getName();
+	virtual bool browseThroughDirectories(const string& cmd, const string& root_path); //method that uses the "cd" command
 };
 
