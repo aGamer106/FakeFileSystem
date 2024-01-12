@@ -7,6 +7,9 @@ using namespace std;
 
 class Directory : ExistingItem
 {
+private:
+	string currentPath;
+
 public:
 	Directory(string name, double size);
 	~Directory();

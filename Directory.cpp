@@ -9,7 +9,7 @@ using namespace std;
 
 Directory::Directory(string name, double size) : ExistingItem(name, "", size)
 {
-
+    currentPath = name;
 }
 
 Directory::~Directory() 
@@ -17,6 +17,7 @@ Directory::~Directory()
 
 }
 
+//getter for the name attribute
 string Directory::getName() {
     return name;
 }
@@ -65,19 +66,4 @@ inline bool Directory::browseThroughDirectories(const string& cmd, const string&
         cout << "Error: Invalid 'cd' command format. Use 'cd <directory>' or 'cd ..'." << endl;
         return false;
     }
-
-
-
-    //if (cmd.length() < 4) return false;
-    //string arg = cmd.substr(3);
-
-    //filesystem::path new_path = current_path / arg;
-    //if (filesystem::is_directory(new_path)) {
-    //    name = new_path.string();  // Update the current directory
-    //    return true;
-    //}
-    //else {
-    //    cout << "Error: \"" << arg << "\" is not a valid directory" << endl;
-    //    return false;
-    //}
 }
