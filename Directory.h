@@ -15,5 +15,6 @@ public:
 	~Directory();
 	string getName();
 	virtual bool browseThroughDirectories(const string& cmd, const string& root_path); //method that uses the "cd" command
+	virtual bool createDirectory(string directoryName); //method that creates a directory using the "mkdir" command
 };
 

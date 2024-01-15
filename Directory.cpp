@@ -4,6 +4,8 @@
 #include <fstream>
 #include <stdio.h>
 #include <iostream>
+#include <direct.h>
+#include <memory>
 
 using namespace std;
 
@@ -23,20 +25,19 @@ string Directory::getName() {
 }
 
 //browsing through folders using the "cd" commands method
-//TODO - overall implementation;
 inline bool Directory::browseThroughDirectories(const string& cmd, const string& rootPath)
 {
-    if (cmd == "cd ..") // Check if the command is "cd .."
+    if (cmd == "cd ..") //check if the command is ".."
     {
-        // Check if the current directory is not the root directory of your "fake" file system
+        //check if the current directory is not the root directory of the fake files
         if (name != rootPath)
         {
-            // Get the parent path (move one level up)
-            filesystem::path parent_path = filesystem::path(name).parent_path();
-            name = parent_path.string(); // Update the current directory name
+            
+            filesystem::path parent_path = filesystem::path(name).parent_path(); //get the parent path - move one level up in the directories
+            name = parent_path.string(); //update the current directory name
             return true;
         }
-        else
+        else //handle errors and throw suitable messages to the screen
         {
             cout << "Error: Already at the root directory." << endl;
             return false;
@@ -44,15 +45,13 @@ inline bool Directory::browseThroughDirectories(const string& cmd, const string&
     }
     else if (cmd.length() >= 4 && cmd.substr(0, 3) == "cd ") // Check if the command starts with "cd "
     {
-        // Extract the argument from the "cd" command
-        string arg = cmd.substr(3);
-
-        // Combine the current path with the new directory name
-        filesystem::path new_path = name + "\\" + arg;
+        
+        string arg = cmd.substr(3); //extract the argument from the "cd" command
+        filesystem::path new_path = name + "\\" + arg; //combine the current path with the new directory name
 
         if (filesystem::is_directory(new_path))
         {
-            name = new_path.string(); // Update the current directory name
+            name = new_path.string(); //update the current directory name
             return true;
         }
         else
@@ -67,3 +66,28 @@ inline bool Directory::browseThroughDirectories(const string& cmd, const string&
         return false;
     }
 }
+
+
+bool Directory::createDirectory(string directoryName)
+{
+    string newFolderPath = currentPath + "\\" + directoryName; // Use currentPath for path construction
+
+    if (!filesystem::exists(newFolderPath))
+    {
+        try {
+            filesystem::create_directory(newFolderPath);
+            cout << "Successfully created directory: " << directoryName << endl;
+            return true;
+        }
+        catch (const std::exception& e) {
+            cout << "Exception caught: " << e.what() << endl;
+            return false;
+        }
+    }
+    else
+    {
+        cout << "Error: The folder " << directoryName << " already exists. Try a new name." << endl;
+        return false;
+    }
+}
+
