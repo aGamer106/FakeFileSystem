@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <filesystem>
+#include <memory>
 #include <sys/stat.h>
 
 using namespace std;
@@ -137,6 +138,10 @@ void ExistingItem::navigate()
         {"commands", 0}
     };
 
+
+    // had encountered the "abort()" error many times due to neglecting dynamic memory management
+    // I decided to stick with smart pointers instead in order to correctly allocate memory for the Directory & File objects
+    //this way, the memory management of these objects will be handled automatically
     Directory currentDirectory(name, 0.0);
 
     // SKELETON LOGIC OF THE NAVIGATION
@@ -176,23 +181,37 @@ void ExistingItem::navigate()
                 }
             }
                 break;
-                
+
+            case 5:
+            {
+                string directoryName;
+                cout << "Directory Name: ";
+                getline(cin, directoryName);
+
+                currentDirectory.createDirectory(directoryName);
+                break;
+            }
+
+
             case 6:
             {
                 string fileName;
                 cout << "File Name: ";
                 getline(cin, fileName); // Read filename here
-                bool exist = filesystem::exists(fileName);
+
+                string fullPath = currentDirectory.getName() + "\\" + fileName; // Append current directory's path
+                bool exist = filesystem::exists(fullPath); // Check if the full path exists
+
                 if (exist) {
-                    cout << "File already exists, try a new name." << endl;
+                    cout << "File already exists in the current directory, try a new name." << endl;
                 }
                 else {
-                    string fullPath = currentDirectory.getName() + "\\" + fileName; // Append current directory's path
                     File newFile(fullPath, 0.0); // Create a new object of type File
                     newFile.createFile(fileName); // Call 'createFile' upon the newly created object
                 }
                 break;
             }
+
             case 8:
                 exit(0);
                 break;
