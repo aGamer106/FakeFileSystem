@@ -22,6 +22,10 @@ ExistingItem::~ExistingItem()
 
 }
 
+string ExistingItem::getName() {
+    return name;
+}
+
 void ExistingItem::searchDirectory(string path)
 {
     for (const filesystem::directory_entry& item : filesystem::directory_iterator(path))
@@ -174,19 +178,23 @@ void ExistingItem::navigate()
             int command = commandIt->second;
             switch (command)
             {
-            case 0:
+            case 0: // 'commands'
                 displayCommands();
                 break;
+
             case 1:
-                useDirCommand(currentDirectory->getName());
+                useDirCommand(currentDirectory->getName()); // 'dir' - regrettably only works for the real folders & files, the fake ones are automatically displayed
                 break;
+
             case 2:
                 // Implement sort by size
                 break;
-            case 3:
-                // Implement sort by name
+
+            case 3: // 'sortname'
+                currentDirectory->sortByName();
+                currentDirectory->listContents();
                 break;
-            case 4:
+            case 4: // 'cd' - works only for the real folders, the in-memory created objects cannot be accessed
             {
                 string directoryName;
                 cout << "Directory name: ";
@@ -195,11 +203,10 @@ void ExistingItem::navigate()
                 if (currentDirectory->browseThroughDirectories("cd " + directoryName, "C:\\Users\\User\\Desktop\\DummyData")) {
                     cout << "Succesfully changed directory to: " << currentDirectory->getName() << endl;
                 }
-                // Here you can add logic to change the current directory
-                // This requires maintaining a hierarchy or path in your simulated file system
+                
                 break;
             }
-            case 5: // "mkdir"
+            case 5: // "mkdir" - creates a new directory object in-memory under a new name and keeps it stored for the duration of use of the program
             {
                 string directoryName;
                 cout << "Directory Name: ";
@@ -224,7 +231,8 @@ void ExistingItem::navigate()
                 break;
             }
 
-            case 6:
+            //worked as a real file creation back when I first started the assignment, I had to look over the briefing again. It was being created in the folder I was cd'ing to, but it was a real file and not in-memory.
+            case 6: // 'mkfile' - creates a new file object in-memory in the root directory unfortunately, I couldn't get it working for the in-memory representations of the folders due to a last-minute complete change
             {
                 string fileName;
                 cout << "File Name: ";

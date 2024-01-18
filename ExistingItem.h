@@ -26,6 +26,7 @@ public:
 	static const tm convertTime(const filesystem::file_time_type& timestamp);
 	void searchDirectory(string name);
 	void displayCommands();
+	string getName();
 	void useDirCommand(const string& path); // this method is used only for the "dir" command
 };
 

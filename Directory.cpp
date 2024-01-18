@@ -131,6 +131,16 @@ const std::vector<std::shared_ptr<File>>& Directory::getSimulatedFiles() const
     return fakedFiles;
 }
 
+void Directory::sortByName()
+{
+    auto comparator = [](const shared_ptr<ExistingItem>& a, const shared_ptr<ExistingItem>& b) {
+        return a->getName() < b->getName();
+        };
+    std::sort(directories.begin(), directories.end(), comparator);
+    std::sort(realFiles.begin(), realFiles.end(), comparator);
+    std::sort(fakedFiles.begin(), fakedFiles.end(), comparator);
+}
+
 void Directory::addFileToMemory(const std::shared_ptr<File>& file)
 {
     realFiles.push_back(file);
