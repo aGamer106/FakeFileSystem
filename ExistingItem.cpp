@@ -153,7 +153,7 @@ void ExistingItem::navigate()
     string input;
     map<string, int> commands = {
         {"dir", 1},
-        {"sortsize", 2},
+        {"sortsize", 2}, //not implemented
         {"sortname", 3},
         {"cd", 4},
         {"mkdir", 5},
@@ -187,7 +187,7 @@ void ExistingItem::navigate()
                 break;
 
             case 2:
-                // Implement sort by size
+                
                 break;
 
             case 3: // 'sortname'
@@ -255,9 +255,23 @@ void ExistingItem::navigate()
             }
 
 
-            case 7:
-                // Implement delete functionality
+            case 7: //'del' - works for the fake files
+            {
+                string name;
+                cout << "Type in the name of the file/directory you'd like to be removed: " << endl;
+                getline(cin, name);
+
+                if (currentDirectory->deleteItem(name)) {
+                    cout << name << " has been deleted." << endl;
+                    currentDirectory->listContents();
+                }
+                else {
+                    cout << "Error: Try using a different name for the files/folders you'd like to remove." << endl;
+                }
                 break;
+            }
+
+
             case 8:
                 exit(0);
                 break;

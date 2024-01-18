@@ -20,9 +20,8 @@ public:
     void listContents() const;
     void listSimulatedFiles() const;
     void clearContents();
-    bool compareByName(const shared_ptr<ExistingItem>& a, const shared_ptr<ExistingItem>& b);
     void sortByName();
-    void setRoot(std::shared_ptr<Directory> root);
+    bool deleteItem(const std::string& name);
     const std::vector<std::shared_ptr<Directory>>& getDirectories() const;
     bool fileExists(const std::string& fileName) const;
     virtual bool browseThroughDirectories(const string& cmd, const string& rootPath);

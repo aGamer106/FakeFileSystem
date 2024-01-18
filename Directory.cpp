@@ -13,11 +13,8 @@ string Directory::getName()
     return name;
 }
 
-void Directory::setRoot(std::shared_ptr<Directory> root)
-{
-    this->root = root;
-}
 
+//method responsible for browsing through the directories using the cd command, only works for the real folders
 inline bool Directory::browseThroughDirectories(const string& cmd, const string& rootPath)
 {
     if (cmd == "cd ..") //check if the command is ".."
@@ -102,10 +99,7 @@ bool Directory::fileExists(const std::string& fileName) const {
     return false;
 }
 
-void Directory::addRealFile(const std::shared_ptr<File>& realFile)
-{
-    realFiles.push_back(realFile);
-}
+
 
 
 void Directory::listSimulatedFiles() const
@@ -121,6 +115,11 @@ void Directory::addSimulatedFile(const std::shared_ptr<File>& fakedFile)
     fakedFiles.push_back(fakedFile);
 }
 
+void Directory::addRealFile(const std::shared_ptr<File>& realFile)
+{
+    realFiles.push_back(realFile);
+}
+
 const std::vector<std::shared_ptr<File>>& Directory::getRealFiles() const
 {
     return realFiles;
@@ -131,14 +130,34 @@ const std::vector<std::shared_ptr<File>>& Directory::getSimulatedFiles() const
     return fakedFiles;
 }
 
-void Directory::sortByName()
+bool Directory::deleteItem(const std::string& name)
 {
-    auto comparator = [](const shared_ptr<ExistingItem>& a, const shared_ptr<ExistingItem>& b) {
-        return a->getName() < b->getName();
+    //setting the rule of removal based upon the name typed via lambda expression
+    auto remove = [&name](const auto& item) {
+        return item->getName() == name;
         };
-    std::sort(directories.begin(), directories.end(), comparator);
-    std::sort(realFiles.begin(), realFiles.end(), comparator);
-    std::sort(fakedFiles.begin(), fakedFiles.end(), comparator);
+
+
+    //using remove_if and then erasing the items
+    auto dirIt = std::remove_if(directories.begin(), directories.end(), remove);
+    bool dirRemoved = dirIt != directories.end();
+    directories.erase(dirIt, directories.end());
+
+    auto realFileIt = std::remove_if(realFiles.begin(), realFiles.end(), remove);
+    bool realFileRemoved = realFileIt != realFiles.end();
+    realFiles.erase(realFileIt, realFiles.end());
+
+    auto fakeFileIt = std::remove_if(fakedFiles.begin(), fakedFiles.end(), remove);
+    bool fakeFileRemoved = fakeFileIt != fakedFiles.end();
+    fakedFiles.erase(fakeFileIt, fakedFiles.end());
+
+    return dirRemoved || realFileRemoved || fakeFileRemoved;
+
+}
+
+const std::vector<std::shared_ptr<Directory>>& Directory::getDirectories() const
+{
+    return directories;
 }
 
 void Directory::addFileToMemory(const std::shared_ptr<File>& file)
@@ -149,6 +168,16 @@ void Directory::addFileToMemory(const std::shared_ptr<File>& file)
 void Directory::addDirectoryToMemory(const std::shared_ptr<Directory>& directory)
 {
     directories.push_back(directory);
+}
+
+void Directory::sortByName()
+{
+    auto comparator = [](const shared_ptr<ExistingItem>& a, const shared_ptr<ExistingItem>& b) {
+        return a->getName() < b->getName();
+        };
+    std::sort(directories.begin(), directories.end(), comparator);
+    std::sort(realFiles.begin(), realFiles.end(), comparator);
+    std::sort(fakedFiles.begin(), fakedFiles.end(), comparator);
 }
 
 
@@ -165,12 +194,4 @@ bool Directory::createDirectory(const std::string& directoryName) {
     directories.push_back(newDirectory);
     return true; // Directory created successfully
 }
-
-
-const std::vector<std::shared_ptr<Directory>>& Directory::getDirectories() const
-{
-    return directories;
-}
-
-
 
