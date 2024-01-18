@@ -1,30 +1,23 @@
+#pragma once
 #include "Directory.h"
-#include "ExistingItem.h"
-#include <filesystem>
-#include <fstream>
-#include <stdio.h>
-#include <iostream>
-#include <direct.h>
-#include <memory>
 
-using namespace std;
-
-Directory::Directory(string name, double size) : ExistingItem(name, "", size)
+Directory::Directory(std::string name, double size) : ExistingItem(name, "", size), currentPath(name)
 {
     currentPath = name;
 }
 
-Directory::~Directory() 
+Directory::~Directory() {}
+
+string Directory::getName()
 {
-
-}
-
-//getter for the name attribute
-string Directory::getName() {
     return name;
 }
 
-//browsing through folders using the "cd" commands method
+void Directory::setRoot(std::shared_ptr<Directory> root)
+{
+    this->root = root;
+}
+
 inline bool Directory::browseThroughDirectories(const string& cmd, const string& rootPath)
 {
     if (cmd == "cd ..") //check if the command is ".."
@@ -32,7 +25,7 @@ inline bool Directory::browseThroughDirectories(const string& cmd, const string&
         //check if the current directory is not the root directory of the fake files
         if (name != rootPath)
         {
-            
+
             filesystem::path parent_path = filesystem::path(name).parent_path(); //get the parent path - move one level up in the directories
             name = parent_path.string(); //update the current directory name
             return true;
@@ -45,7 +38,6 @@ inline bool Directory::browseThroughDirectories(const string& cmd, const string&
     }
     else if (cmd.length() >= 4 && cmd.substr(0, 3) == "cd ") // Check if the command starts with "cd "
     {
-        
         string arg = cmd.substr(3); //extract the argument from the "cd" command
         filesystem::path new_path = name + "\\" + arg; //combine the current path with the new directory name
 
@@ -67,27 +59,101 @@ inline bool Directory::browseThroughDirectories(const string& cmd, const string&
     }
 }
 
-
-bool Directory::createDirectory(string directoryName)
+void Directory::clearContents()
 {
-    string newFolderPath = currentPath + "\\" + directoryName; // Use currentPath for path construction
+    realFiles.clear();
+    fakedFiles.clear();
+    directories.clear();
+}
 
-    if (!filesystem::exists(newFolderPath))
-    {
-        try {
-            filesystem::create_directory(newFolderPath);
-            cout << "Successfully created directory: " << directoryName << endl;
-            return true;
-        }
-        catch (const std::exception& e) {
-            cout << "Exception caught: " << e.what() << endl;
-            return false;
-        }
+
+
+void Directory::listContents() const {
+    // List directories
+    for (const auto& dir : directories) {
+        std::cout << "Directory: " << dir->getName() << std::endl;
     }
-    else
-    {
-        cout << "Error: The folder " << directoryName << " already exists. Try a new name." << endl;
-        return false;
+
+    // List real files
+    for (const auto& realFile : realFiles) {
+        std::cout << "Real File: " << realFile->getName() << std::endl;
+    }
+
+    // List simulated files
+    for (const auto& simulatedFile : fakedFiles) {
+        std::cout << "Simulated File: " << simulatedFile->getName() << std::endl;
     }
 }
+
+
+bool Directory::fileExists(const std::string& fileName) const {
+    for (const auto& realFile : realFiles) {
+        if (realFile->getName() == fileName) {
+            return true;
+        }
+    }
+
+    for (const auto& fakeFile : fakedFiles) {
+        if (fakeFile->getName() == fileName) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void Directory::addRealFile(const std::shared_ptr<File>& realFile)
+{
+    realFiles.push_back(realFile);
+}
+
+//as printing both the real files as well as the fake files AT ONCE took too long 
+//to get fixed to an ultimate failure,
+//my idea was to create another method only responsible for the printing
+//of the fake files immediately after the real ones are being displayed
+void Directory::listSimulatedFiles() const
+{
+    cout << "Listing the instances created here: " << endl;
+    for (const auto& simulatedFile : fakedFiles) {
+        cout << "FF: " << simulatedFile->getName() << endl;
+    }
+}
+
+void Directory::addSimulatedFile(const std::shared_ptr<File>& fakedFile)
+{
+    fakedFiles.push_back(fakedFile);
+}
+
+const std::vector<std::shared_ptr<File>>& Directory::getRealFiles() const
+{
+    return realFiles;
+}
+
+const std::vector<std::shared_ptr<File>>& Directory::getSimulatedFiles() const
+{
+    return fakedFiles;
+}
+
+void Directory::addFileToMemory(const std::shared_ptr<File>& file)
+{
+    realFiles.push_back(file);
+}
+
+void Directory::addDirectoryToMemory(const std::shared_ptr<Directory>& directory)
+{
+    directories.push_back(directory);
+}
+
+
+void Directory::createDirectory(std::string directoryName) {
+    auto newDirectory = std::make_shared<Directory>(directoryName, 0.0);
+    directories.push_back(newDirectory);
+}
+
+const std::vector<std::shared_ptr<Directory>>& Directory::getDirectories() const
+{
+    return directories;
+}
+
+
 

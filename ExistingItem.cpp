@@ -1,3 +1,4 @@
+#pragma once
 #include "ExistingItem.h"
 #include "File.h"
 #include "Directory.h"
@@ -9,6 +10,7 @@
 #include <sys/stat.h>
 
 using namespace std;
+
 
 ExistingItem::ExistingItem(string name, string timestamp, double size) : name(name), timestamp(timestamp), size(size)
 {
@@ -38,16 +40,34 @@ void ExistingItem::searchDirectory(string path)
 }
 
 
-//method implementation:
-//the only difference between this and the one just above,
-//is that this method DOES NOT go any deeper into the sub-folders of the current folder
-//printing out only the contents of the current folder, recursively
 void ExistingItem::useDirCommand(const string& path)
 {
-    for (const filesystem::directory_entry& item : filesystem::directory_iterator(path))
-    {
-        cout << item.path().filename().string() << endl;  // Only display the filename
+    cout << "Contents of " << path << ":\n";
+
+    // Printing real files
+    vector<shared_ptr<Directory>> directoriesInMemory;
+    vector<shared_ptr<File>> filesInMemory;
+
+    // Iterate through the real files and directories
+    for (const auto& item : filesystem::directory_iterator(path)) {
+        string itemName = item.path().filename().string();
+
+        if (item.is_directory()) {
+            cout << "Directory: " << itemName << endl;
+
+            // Create a Directory object and add it to the in-memory list
+            auto dir = make_shared<Directory>(itemName, 0.0);
+            directoriesInMemory.push_back(dir);
+        }
+        else {
+            cout << "File: " << itemName << endl;
+
+            // Create a File object and add it to the in-memory list
+            auto file = make_shared<File>(itemName, 0.0); // Assuming size is 0.0
+            filesInMemory.push_back(file);
+        }
     }
+    
 }
 
 
@@ -123,6 +143,7 @@ void ExistingItem::listDirectories(string path) {
 }
 
 
+
 void ExistingItem::navigate()
 {
     string input;
@@ -138,37 +159,32 @@ void ExistingItem::navigate()
         {"commands", 0}
     };
 
+    // Create a root directory for the simulated file system
+    auto currentDirectory = make_shared<Directory>(name, 0.0);
 
-    // had encountered the "abort()" error many times due to neglecting dynamic memory management
-    // I decided to stick with smart pointers instead in order to correctly allocate memory for the Directory & File objects
-    //this way, the memory management of these objects will be handled automatically
-    Directory currentDirectory(name, 0.0);
-
-    // SKELETON LOGIC OF THE NAVIGATION
     while (true)
     {
-        cout << currentDirectory.getName() << ":>";
+        cout << currentDirectory->getName() << ":>";
         cout << " ";
         getline(cin, input);
 
         auto commandIt = commands.find(input);
         if (commandIt != commands.end())
         {
-            // Valid command, proceed with handling it
             int command = commandIt->second;
             switch (command)
             {
             case 0:
-                displayCommands(); // i implemented this functionality solely to avoid confusion between the commands themselves in the command prompt
+                displayCommands();
                 break;
             case 1:
-                useDirCommand(currentDirectory.getName());
+                useDirCommand(currentDirectory->getName());
                 break;
             case 2:
-                // Handle sortsize
+                // Implement sort by size
                 break;
             case 3:
-                // Handle sortname
+                // Implement sort by name
                 break;
             case 4:
             {
@@ -176,46 +192,59 @@ void ExistingItem::navigate()
                 cout << "Directory name: ";
                 getline(cin, directoryName);
 
-                if (currentDirectory.browseThroughDirectories("cd " + directoryName, "C:\\Users\\User\\Desktop\\DummyData")) {
-                    cout << "Succesfully changed directory to: " << currentDirectory.getName() << endl;
+                if (currentDirectory->browseThroughDirectories("cd " + directoryName, "C:\\Users\\User\\Desktop\\DummyData")) {
+                    cout << "Succesfully changed directory to: " << currentDirectory->getName() << endl;
                 }
-            }
+                // Here you can add logic to change the current directory
+                // This requires maintaining a hierarchy or path in your simulated file system
                 break;
-
+            }
             case 5:
             {
                 string directoryName;
                 cout << "Directory Name: ";
                 getline(cin, directoryName);
-
-                currentDirectory.createDirectory(directoryName);
+                currentDirectory->createDirectory(directoryName);
                 break;
             }
-
-
             case 6:
             {
                 string fileName;
                 cout << "File Name: ";
-                getline(cin, fileName); // Read filename here
+                getline(cin, fileName);
 
-                string fullPath = currentDirectory.getName() + "\\" + fileName; // Append current directory's path
-                bool exist = filesystem::exists(fullPath); // Check if the full path exists
-
-                if (exist) {
+                // Check if a file with the same name already exists in the current directory
+                if (currentDirectory->fileExists(fileName)) {
                     cout << "File already exists in the current directory, try a new name." << endl;
                 }
                 else {
-                    File newFile(fullPath, 0.0); // Create a new object of type File
-                    newFile.createFile(fileName); // Call 'createFile' upon the newly created object
+                    // Create a new File object
+                    auto newFile = make_shared<File>(fileName, 0.0); 
+                    currentDirectory->addSimulatedFile(newFile);
+                    
+                    newFile->createFile(fileName);
+
+                    // Check if the current directory is the root directory (simulated file system)
+                    //if (currentDirectory->getName() == root->getName()) {
+                    //    // Add the new File object to the root directory (simulated file system)
+                    //    root->addSimulatedFile(newFile);
+                    //}
+                    
+
+                        // Add the new File object to the current directory
+                    cout << "Simulated file \"" << fileName << "\" created successfully in directory " << currentDirectory->getName() << endl;
+                    currentDirectory->listContents();
                 }
                 break;
             }
 
+
+            case 7:
+                // Implement delete functionality
+                break;
             case 8:
                 exit(0);
                 break;
-                // Handle other commands as needed
             default:
                 cout << "Command not implemented yet.\n";
                 break;

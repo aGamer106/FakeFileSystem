@@ -1,7 +1,9 @@
 #pragma once
+//#include "Directory.h"
 #include <iostream>
 #include <filesystem>
 #include <string>
+
 
 
 using namespace std;
@@ -14,6 +16,7 @@ protected:
 	string name;
 	string timestamp;
 	double size;
+	//Directory& currentDirectory;
 
 public:
 	ExistingItem(string name, string timestamp, double size);

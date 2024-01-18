@@ -1,17 +1,16 @@
 #pragma once
-#include <iostream>;
-#include <filesystem>;
-#include "ExistingItem.h";
+#include "ExistingItem.h"
+#include <iostream>
 
 using namespace std;
 
-class File : ExistingItem
-{
-public:
-	File(string name, double size);
-	~File();
-	virtual void createFile(string fileName);
-	string getName();
+class File : public ExistingItem {
 
+
+public:
+    File(std::string name, double size);
+    ~File();
+    string getName();
+    void createFile(string fileName);
 };
 

@@ -1,55 +1,36 @@
-#include "File.h";
-#include <iostream>;
-#include <string>;
-#include <fstream>
-#include <filesystem>;
-#include <chrono>
-#include <iomanip>
+#pragma once
+#include "Directory.h"
+#include "File.h"
+#include "ExistingItem.h"
+#include <iostream>
 
-using namespace std;
+File::File(std::string name, double size) : ExistingItem(name, "", size) {}
 
-File::File(string name, double size) : ExistingItem(name, "", size)
-{
-
-}
-
-File::~File() 
-{
-
-}
-
+File::~File() {}
 
 string File::getName() {
-	return name;
+    return name;
 }
 
-
-void File::createFile(string fileName) 
+void File::createFile(string fileName)
 {
-	//string filePath = name + "\\" + fileName;
-	ofstream newFile(name);
+    // Set the name of the file
+    this->name = fileName;
 
-	if (newFile.is_open()) {
-		cout << "File created successfully: " << fileName << endl;
-		newFile.close();
+    // Simulate the file creation timestamp
+    auto currentTime = chrono::system_clock::now();
+    time_t creationTime = chrono::system_clock::to_time_t(currentTime);
 
-		auto currentTime = chrono::system_clock::now();
-		time_t creationTime = chrono::system_clock::to_time_t(currentTime);
+    tm creationTm;
+    localtime_s(&creationTm, &creationTime); // Use localtime_s for safety
 
-		tm creationTm;
-		localtime_s(&creationTm, &creationTime); // Use localtime_s for safety
+    char buffer[80];
+    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &creationTm); // Format creation time
 
-		char buffer[80];
-		strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &creationTm);
+    timestamp = buffer; // Set the timestamp within the File class
 
-		timestamp = buffer; // Set the timestamp within the File class
-	}
-	else {
-		cout << "Failed to create file: " << fileName << endl;
-	}
+    cout << "Simulated file created: " << fileName << " with timestamp " << timestamp << endl;
 }
-
-
 
 
 
