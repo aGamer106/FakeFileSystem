@@ -199,14 +199,31 @@ void ExistingItem::navigate()
                 // This requires maintaining a hierarchy or path in your simulated file system
                 break;
             }
-            case 5:
+            case 5: // "mkdir"
             {
                 string directoryName;
                 cout << "Directory Name: ";
                 getline(cin, directoryName);
-                currentDirectory->createDirectory(directoryName);
+
+                if (!currentDirectory->createDirectory(directoryName)) {
+                    cout << "Error: A directory with the name '" << directoryName << "' already exists." << endl;
+                    break;
+                }
+                else {
+                    // Display confirmation message with timestamp
+                    auto currentTime = chrono::system_clock::now();
+                    time_t creationTime = chrono::system_clock::to_time_t(currentTime);
+                    tm creationTm;
+                    localtime_s(&creationTm, &creationTime);
+                    char buffer[80];
+                    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &creationTm);
+                    cout << "Directory \"" << directoryName << "\" created successfully with timestamp " << buffer << endl;
+                }
+                
+                currentDirectory->listContents();
                 break;
             }
+
             case 6:
             {
                 string fileName;
@@ -223,15 +240,6 @@ void ExistingItem::navigate()
                     currentDirectory->addSimulatedFile(newFile);
                     
                     newFile->createFile(fileName);
-
-                    // Check if the current directory is the root directory (simulated file system)
-                    //if (currentDirectory->getName() == root->getName()) {
-                    //    // Add the new File object to the root directory (simulated file system)
-                    //    root->addSimulatedFile(newFile);
-                    //}
-                    
-
-                        // Add the new File object to the current directory
                     cout << "Simulated file \"" << fileName << "\" created successfully in directory " << currentDirectory->getName() << endl;
                     currentDirectory->listContents();
                 }

@@ -16,7 +16,7 @@ protected:
 	string name;
 	string timestamp;
 	double size;
-	//Directory& currentDirectory;
+	
 
 public:
 	ExistingItem(string name, string timestamp, double size);

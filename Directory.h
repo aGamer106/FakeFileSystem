@@ -15,7 +15,7 @@ private:
 public:
     Directory(std::string name, double size);
     ~Directory();
-    void createDirectory(std::string directoryName);
+    virtual bool createDirectory(const std::string& directoryName);
     string getName();
     void listContents() const;
     void listSimulatedFiles() const;

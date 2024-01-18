@@ -107,10 +107,7 @@ void Directory::addRealFile(const std::shared_ptr<File>& realFile)
     realFiles.push_back(realFile);
 }
 
-//as printing both the real files as well as the fake files AT ONCE took too long 
-//to get fixed to an ultimate failure,
-//my idea was to create another method only responsible for the printing
-//of the fake files immediately after the real ones are being displayed
+
 void Directory::listSimulatedFiles() const
 {
     cout << "Listing the instances created here: " << endl;
@@ -145,10 +142,20 @@ void Directory::addDirectoryToMemory(const std::shared_ptr<Directory>& directory
 }
 
 
-void Directory::createDirectory(std::string directoryName) {
+bool Directory::createDirectory(const std::string& directoryName) {
+    // Check if a directory with this name already exists
+    for (const auto& dir : directories) {
+        if (dir->getName() == directoryName) {
+            return false; // Directory already exists
+        }
+    }
+
+    // If directory doesn't exist, create it
     auto newDirectory = std::make_shared<Directory>(directoryName, 0.0);
     directories.push_back(newDirectory);
+    return true; // Directory created successfully
 }
+
 
 const std::vector<std::shared_ptr<Directory>>& Directory::getDirectories() const
 {
